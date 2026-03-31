@@ -1,0 +1,134 @@
+[
+  {
+    "id": "term-palmer",
+    "name": "Aurora Palmer Terminal",
+    "city": "Palmer",
+    "lat": 32.43,
+    "lng": -96.67,
+    "operators": ["aurora"],
+    "type": "av_terminal",
+    "size_sqft": null,
+    "capabilities": ["fueling", "maintenance", "inspection", "calibration"]
+  },
+  {
+    "id": "term-dallas",
+    "name": "Dallas Hub",
+    "city": "Dallas",
+    "lat": 32.78,
+    "lng": -96.80,
+    "operators": ["aurora", "gatik"],
+    "type": "av_terminal",
+    "size_sqft": null,
+    "capabilities": ["fueling", "maintenance", "inspection"]
+  },
+  {
+    "id": "term-fortworth",
+    "name": "Fort Worth Terminal",
+    "city": "Fort Worth",
+    "lat": 32.75,
+    "lng": -97.33,
+    "operators": ["aurora"],
+    "type": "av_terminal",
+    "size_sqft": null,
+    "capabilities": ["fueling", "maintenance", "inspection", "calibration"]
+  },
+  {
+    "id": "term-houston",
+    "name": "Houston Terminal",
+    "city": "Houston",
+    "lat": 29.95,
+    "lng": -95.69,
+    "operators": ["aurora", "bot-auto"],
+    "type": "av_terminal",
+    "size_sqft": null,
+    "capabilities": ["fueling", "maintenance", "inspection"]
+  },
+  {
+    "id": "term-lancaster",
+    "name": "Waabi Lancaster Terminal",
+    "city": "Lancaster",
+    "lat": 32.59,
+    "lng": -96.76,
+    "operators": ["waabi"],
+    "type": "av_terminal",
+    "size_sqft": 348480,
+    "capabilities": ["fueling", "maintenance", "inspection", "calibration"]
+  },
+  {
+    "id": "term-sanantonio",
+    "name": "San Antonio Hub",
+    "city": "San Antonio",
+    "lat": 29.42,
+    "lng": -98.49,
+    "operators": ["aurora", "bot-auto"],
+    "type": "depot",
+    "size_sqft": null,
+    "capabilities": ["fueling", "inspection"]
+  },
+  {
+    "id": "term-elpaso",
+    "name": "El Paso Terminal",
+    "city": "El Paso",
+    "lat": 31.76,
+    "lng": -106.44,
+    "operators": ["aurora"],
+    "type": "av_terminal",
+    "size_sqft": null,
+    "capabilities": ["fueling", "maintenance", "inspection"]
+  },
+  {
+    "id": "term-laredo",
+    "name": "Laredo Border Hub",
+    "city": "Laredo",
+    "lat": 27.51,
+    "lng": -99.51,
+    "operators": ["aurora"],
+    "type": "depot",
+    "size_sqft": null,
+    "capabilities": ["fueling", "inspection"]
+  },
+  {
+    "id": "term-midland",
+    "name": "Midland Terminal",
+    "city": "Midland",
+    "lat": 31.99,
+    "lng": -102.08,
+    "operators": ["aurora", "kodiak"],
+    "type": "av_terminal",
+    "size_sqft": null,
+    "capabilities": ["fueling", "maintenance", "inspection"]
+  },
+  {
+    "id": "term-odessa",
+    "name": "Kodiak Odessa Office",
+    "city": "Odessa",
+    "lat": 31.95,
+    "lng": -102.35,
+    "operators": ["kodiak"],
+    "type": "av_terminal",
+    "size_sqft": 18000,
+    "capabilities": ["maintenance", "inspection", "calibration"]
+  },
+  {
+    "id": "term-duneexpress",
+    "name": "Dune Express Terminal",
+    "city": "Kermit",
+    "lat": 31.85,
+    "lng": -103.10,
+    "operators": ["kodiak"],
+    "type": "truckport",
+    "size_sqft": null,
+    "capabilities": ["fueling", "maintenance", "inspection"]
+  },
+  {
+    "id": "term-phoenix",
+    "name": "Phoenix Terminal",
+    "city": "Phoenix",
+    "lat": 33.45,
+    "lng": -112.07,
+    "operators": ["aurora"],
+    "type": "depot",
+    "size_sqft": null,
+    "capabilities": ["fueling", "inspection"]
+  }
+]

@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { useRoutes } from "@/hooks/useRoutes";
 import MapWrapper from "@/components/map/MapContainer";
 import MapLegend from "@/components/map/MapLegend";
 import RouteSidebar from "@/components/routes/RouteSidebar";
 import RouteDetail from "@/components/routes/RouteDetail";
+import { terminals, chargingStops } from "@/data/routes";
 
 export default function Home() {
   const {
@@ -20,6 +22,9 @@ export default function Home() {
     clearFilters,
   } = useRoutes();
 
+  const [showTerminals, setShowTerminals] = useState(true);
+  const [showCharging, setShowCharging] = useState(true);
+
   return (
     <div className="grid h-screen grid-cols-[340px_1fr]">
       <RouteSidebar
@@ -32,11 +37,19 @@ export default function Home() {
         onToggleStatus={toggleStatus}
         onClearFilters={clearFilters}
         onSelectRoute={selectRoute}
+        showTerminals={showTerminals}
+        showCharging={showCharging}
+        onToggleTerminals={() => setShowTerminals((v) => !v)}
+        onToggleCharging={() => setShowCharging((v) => !v)}
       />
 
       <div className="relative h-full">
         <MapWrapper
           routes={filteredRoutes}
+          terminals={terminals}
+          chargingStops={chargingStops}
+          showTerminals={showTerminals}
+          showCharging={showCharging}
           selectedRouteId={selectedRouteId}
           onSelectRoute={selectRoute}
         />

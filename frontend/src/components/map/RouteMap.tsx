@@ -11,7 +11,7 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import type { Route } from "@/lib/types";
+import type { Route, Terminal, ChargingStop } from "@/lib/types";
 import {
   COMPANY_COLORS,
   COMPANY_LABELS,
@@ -23,6 +23,10 @@ import {
 
 interface RouteMapProps {
   routes: Route[];
+  terminals: Terminal[];
+  chargingStops: ChargingStop[];
+  showTerminals: boolean;
+  showCharging: boolean;
   selectedRouteId: string | null;
   onSelectRoute: (id: string | null) => void;
 }
@@ -58,6 +62,10 @@ function getDashArray(status: string): string | undefined {
 
 export default function RouteMap({
   routes,
+  terminals,
+  chargingStops,
+  showTerminals,
+  showCharging,
   selectedRouteId,
   onSelectRoute,
 }: RouteMapProps) {
@@ -144,6 +152,68 @@ export default function RouteMap({
           </span>
         );
       })}
+
+      {showTerminals &&
+        terminals.map((t) => {
+          const opColor =
+            t.operators[0] && t.operators[0] in COMPANY_COLORS
+              ? COMPANY_COLORS[t.operators[0] as keyof typeof COMPANY_COLORS]
+              : "#94a3b8";
+          return (
+            <CircleMarker
+              key={t.id}
+              center={[t.lat, t.lng]}
+              radius={6}
+              pathOptions={{
+                color: "#f1f5f9",
+                fillColor: opColor,
+                fillOpacity: 0.9,
+                weight: 2,
+                opacity: 0.9,
+              }}
+            >
+              <Tooltip>
+                <span className="text-sm">
+                  <strong>{t.name}</strong>
+                  <br />
+                  {t.city} &middot; {t.type.replace("_", " ")}
+                  {t.capabilities.length > 0 && (
+                    <>
+                      <br />
+                      {t.capabilities.join(", ")}
+                    </>
+                  )}
+                </span>
+              </Tooltip>
+            </CircleMarker>
+          );
+        })}
+
+      {showCharging &&
+        chargingStops.map((cs) => (
+          <CircleMarker
+            key={cs.id}
+            center={[cs.lat, cs.lng]}
+            radius={5}
+            pathOptions={{
+              color: cs.status === "active" ? "#e11d48" : "#e11d48",
+              fillColor: cs.status === "active" ? "#e11d48" : "#1a2234",
+              fillOpacity: cs.status === "active" ? 0.9 : 0.7,
+              weight: 2,
+              opacity: 0.8,
+              dashArray: cs.status === "planned" ? "3 3" : undefined,
+            }}
+          >
+            <Tooltip>
+              <span className="text-sm">
+                <strong>{cs.name}</strong>
+                <br />
+                {cs.corridor} &middot; {cs.status}
+                {cs.power_kw && <> &middot; {cs.power_kw / 1000} MW</>}
+              </span>
+            </Tooltip>
+          </CircleMarker>
+        ))}
     </MapContainer>
   );
 }

@@ -14,6 +14,42 @@ interface RouteSidebarProps {
   onToggleStatus: (s: Status) => void;
   onClearFilters: () => void;
   onSelectRoute: (id: string) => void;
+  showTerminals: boolean;
+  showCharging: boolean;
+  onToggleTerminals: () => void;
+  onToggleCharging: () => void;
+}
+
+function LayerToggle({
+  label,
+  color,
+  enabled,
+  onToggle,
+}: {
+  label: string;
+  color: string;
+  enabled: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      onClick={onToggle}
+      className="flex items-center gap-2 rounded px-3 py-1 text-xs font-semibold transition-all"
+      style={{
+        border: `1px solid ${enabled ? color : "#1e293b"}`,
+        color: enabled ? color : "#64748b",
+        backgroundColor: enabled ? `${color}15` : "#111827",
+      }}
+    >
+      <span
+        className="inline-block h-2 w-2 rounded-full"
+        style={{
+          backgroundColor: enabled ? color : "#64748b",
+        }}
+      />
+      {label}
+    </button>
+  );
 }
 
 export default function RouteSidebar({
@@ -26,6 +62,10 @@ export default function RouteSidebar({
   onToggleStatus,
   onClearFilters,
   onSelectRoute,
+  showTerminals,
+  showCharging,
+  onToggleTerminals,
+  onToggleCharging,
 }: RouteSidebarProps) {
   const activeCount = routes.filter((r) => r.status === "active").length;
 
@@ -72,6 +112,27 @@ export default function RouteSidebar({
         onToggleStatus={onToggleStatus}
         onClear={onClearFilters}
       />
+
+      {/* Map layers */}
+      <div className="border-b border-[#1e293b] px-5 py-3">
+        <h3 className="mb-2 font-mono text-[10px] uppercase tracking-[2px] text-slate-500">
+          Map Layers
+        </h3>
+        <div className="flex flex-wrap gap-1.5">
+          <LayerToggle
+            label="Terminals"
+            color="#f1f5f9"
+            enabled={showTerminals}
+            onToggle={onToggleTerminals}
+          />
+          <LayerToggle
+            label="Megachargers"
+            color="#e11d48"
+            enabled={showCharging}
+            onToggle={onToggleCharging}
+          />
+        </div>
+      </div>
 
       <RouteList
         routes={filteredRoutes}

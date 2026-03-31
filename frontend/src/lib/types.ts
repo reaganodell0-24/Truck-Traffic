@@ -35,3 +35,33 @@ export interface Route {
   coordinates: Coordinates;
   volume: Volume;
 }
+
+export type TerminalType = "av_terminal" | "truckport" | "megacharger" | "depot";
+
+export interface Terminal {
+  id: string;
+  name: string;
+  city: string;
+  lat: number;
+  lng: number;
+  operators: string[];
+  type: TerminalType;
+  size_sqft: number | null;
+  capabilities: string[];
+}
+
+export type ChargingStopType = "megacharger" | "ev_charger" | "diesel_stop";
+export type ChargingStopStatus = "active" | "planned" | "under_construction";
+
+export interface ChargingStop {
+  id: string;
+  name: string;
+  lat: number;
+  lng: number;
+  corridor: string;
+  type: ChargingStopType;
+  status: ChargingStopStatus;
+  operator: string;
+  power_kw: number | null;
+  stall_count: number | null;
+}

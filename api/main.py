@@ -60,6 +60,38 @@ def get_route(route_id: str):
     return route
 
 
+# ── Terminals ─────────────────────────────────────────────────────
+
+@app.get("/api/terminals")
+def get_terminals(
+    operator: Optional[str] = None,
+    type: Optional[str] = None,
+):
+    """All terminal/hub locations, optionally filtered by operator or type."""
+    terminals = load_json("terminals.json")
+    if operator:
+        terminals = [t for t in terminals if operator in t["operators"]]
+    if type:
+        terminals = [t for t in terminals if t["type"] == type]
+    return terminals
+
+
+# ── Charging Stops ────────────────────────────────────────────────
+
+@app.get("/api/charging-stops")
+def get_charging_stops(
+    corridor: Optional[str] = None,
+    status: Optional[str] = None,
+):
+    """Megacharger and EV charging locations along corridors."""
+    stops = load_json("charging_stops.json")
+    if corridor:
+        stops = [s for s in stops if corridor.lower() in s["corridor"].lower()]
+    if status:
+        stops = [s for s in stops if s["status"] == status]
+    return stops
+
+
 # ── FAF5 Freight Flows ─────────────────────────────────────────────
 
 @app.get("/api/faf5/flows")
