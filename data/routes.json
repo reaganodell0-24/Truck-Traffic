@@ -1,0 +1,331 @@
+[
+  {
+    "id": "aur-dh",
+    "name": "Dallas → Houston",
+    "company": "aurora",
+    "status": "active",
+    "corridor": "I-45",
+    "distance_miles": 240,
+    "origin": "palmer",
+    "destination": "houston",
+    "waypoints": [],
+    "launched": "Apr 2025",
+    "truck_count": "10 (5 fully driverless)",
+    "customers": ["Uber Freight", "Hirschbach"],
+    "power_type": "Diesel (autonomous)",
+    "fuel_economy_mpg": "9-11",
+    "coordinates": {
+      "origin": [32.43, -96.67],
+      "destination": [29.95, -95.69],
+      "path": [[32.43, -96.67], [31.55, -96.53], [30.72, -95.55], [29.95, -95.69]]
+    },
+    "volume": {
+      "truck_aadt": "18000-25000",
+      "annual_tonnage_m_tons": 200,
+      "av_loads_per_week": 75,
+      "top_commodities": ["Consumer goods", "Auto parts", "Port of Houston cargo", "Gasoline"],
+      "source": "TxDOT I-45 FCP / Aurora",
+      "year": 2024
+    },
+    "notes": "First-ever commercial driverless trucking service on public roads. ~50% of all TX truck freight moves on I-45. Port of Houston = 2nd largest US marine port by tonnage. 6 of top 100 US freight bottlenecks on I-45."
+  },
+  {
+    "id": "aur-fwe",
+    "name": "Fort Worth → El Paso",
+    "company": "aurora",
+    "status": "active",
+    "corridor": "I-20 / I-10",
+    "distance_miles": 600,
+    "origin": "fortworth",
+    "destination": "elpaso",
+    "waypoints": ["midland"],
+    "launched": "Oct 2025",
+    "truck_count": "5+",
+    "customers": ["Multiple carriers"],
+    "power_type": "Diesel (autonomous)",
+    "fuel_economy_mpg": "9-11",
+    "coordinates": {
+      "origin": [32.75, -97.33],
+      "destination": [31.76, -106.44],
+      "path": [[32.75, -97.33], [32.45, -99.75], [31.99, -102.08], [31.76, -106.44]]
+    },
+    "volume": {
+      "truck_aadt": "5000-12000",
+      "annual_tonnage_m_tons": 80,
+      "av_loads_per_week": null,
+      "top_commodities": ["O&G equipment", "Frac sand", "Consumer goods"],
+      "source": "TxDOT / FHWA FAF5",
+      "year": 2024
+    },
+    "notes": "600-mile haul exceeds single-driver HOS rules. Volume drops west of Abilene, spikes at Permian Basin."
+  },
+  {
+    "id": "aur-fwp",
+    "name": "Fort Worth → Phoenix",
+    "company": "aurora",
+    "status": "active",
+    "corridor": "I-20 / I-10",
+    "distance_miles": 1000,
+    "origin": "fortworth",
+    "destination": "phoenix",
+    "waypoints": ["elpaso"],
+    "launched": "Feb 2026",
+    "truck_count": "Expanding",
+    "customers": ["Hirschbach Motor Lines"],
+    "power_type": "Diesel (autonomous)",
+    "fuel_economy_mpg": "9-11",
+    "coordinates": {
+      "origin": [32.75, -97.33],
+      "destination": [33.45, -112.07],
+      "path": [[32.75, -97.33], [31.76, -106.44], [32.22, -110.93], [33.45, -112.07]]
+    },
+    "volume": {
+      "truck_aadt": "3000-8000",
+      "annual_tonnage_m_tons": 60,
+      "av_loads_per_week": null,
+      "top_commodities": ["General freight", "Manufacturing", "Produce"],
+      "source": "FHWA FAF5",
+      "year": 2024
+    },
+    "notes": "Longest active AV route. Completed in ~15 hrs vs 2+ days for human drivers. Lower volume but high-value for 24/7 ops."
+  },
+  {
+    "id": "aur-dl",
+    "name": "Dallas → Laredo",
+    "company": "aurora",
+    "status": "active",
+    "corridor": "I-35",
+    "distance_miles": 430,
+    "origin": "dallas",
+    "destination": "laredo",
+    "waypoints": ["sanantonio"],
+    "launched": "2025",
+    "truck_count": "Part of 30-truck fleet",
+    "customers": ["Various"],
+    "power_type": "Diesel (autonomous)",
+    "fuel_economy_mpg": "9-11",
+    "coordinates": {
+      "origin": [32.78, -96.80],
+      "destination": [27.51, -99.51],
+      "path": [[32.78, -96.80], [31.55, -97.15], [30.27, -97.74], [29.42, -98.49], [27.51, -99.51]]
+    },
+    "volume": {
+      "truck_aadt": "12000-20000",
+      "annual_tonnage_m_tons": 250,
+      "av_loads_per_week": null,
+      "top_commodities": ["Cross-border goods", "Auto", "Electronics", "Produce"],
+      "source": "TxDOT TFMP / CBP / BTS TransBorder",
+      "year": 2024
+    },
+    "notes": "Laredo = #1 US inland port. 3.7M+ inbound MX trucks/yr. 83% of MX-TX trade moves by truck. I-35 = highest tonnage corridor in TX."
+  },
+  {
+    "id": "aur-dsa",
+    "name": "Dallas → San Antonio",
+    "company": "aurora",
+    "status": "active",
+    "corridor": "I-35",
+    "distance_miles": 275,
+    "origin": "dallas",
+    "destination": "sanantonio",
+    "waypoints": ["austin"],
+    "launched": "2025",
+    "truck_count": "Part of 30-truck fleet",
+    "customers": ["FedEx", "Werner", "Schneider"],
+    "power_type": "Diesel (autonomous)",
+    "fuel_economy_mpg": "9-11",
+    "coordinates": {
+      "origin": [32.78, -96.80],
+      "destination": [29.42, -98.49],
+      "path": [[32.78, -96.80], [31.55, -97.15], [30.27, -97.74], [29.42, -98.49]]
+    },
+    "volume": {
+      "truck_aadt": "12000-20000",
+      "annual_tonnage_m_tons": 180,
+      "av_loads_per_week": null,
+      "top_commodities": ["Consumer", "Auto", "Building materials", "Military"],
+      "source": "TxDOT TFMP",
+      "year": 2024
+    },
+    "notes": "Full I-35 Texas Triangle. Predicted inadequate LOS by 2045 without expansion."
+  },
+  {
+    "id": "kod-permian-dune",
+    "name": "Dune Express → Well Sites",
+    "company": "kodiak",
+    "status": "active",
+    "corridor": "Private lease roads",
+    "distance_miles": 21,
+    "origin": "duneexpress",
+    "destination": "delaware_wells",
+    "waypoints": [],
+    "launched": "May 2024",
+    "truck_count": "10 driverless (100 on order)",
+    "customers": ["Atlas Energy Solutions"],
+    "power_type": "Diesel (autonomous)",
+    "fuel_economy_mpg": null,
+    "coordinates": {
+      "origin": [31.85, -103.10],
+      "destination": [31.70, -103.40],
+      "path": [[31.85, -103.10], [31.70, -103.40]]
+    },
+    "volume": {
+      "truck_aadt": "2000-5000",
+      "annual_tonnage_m_tons": null,
+      "av_loads_per_week": null,
+      "top_commodities": ["Frac sand", "Proppant"],
+      "source": "Atlas Energy / Kodiak",
+      "year": 2025
+    },
+    "notes": "Largest AV fleet in industrial use. 24/7 ops on private lease roads. Single well pad requires ~10,000 tons of sand."
+  },
+  {
+    "id": "aur-permian-detmar",
+    "name": "Midland → Monahans (Frac Sand)",
+    "company": "aurora",
+    "status": "active",
+    "corridor": "I-20 + local/private",
+    "distance_miles": 50,
+    "origin": "midland",
+    "destination": "monahans",
+    "waypoints": [],
+    "launched": "Q1 2026 supervised → Q2 2026 driverless",
+    "truck_count": "30 committed",
+    "customers": ["Detmar Logistics"],
+    "power_type": "Diesel (autonomous)",
+    "fuel_economy_mpg": "8-10",
+    "coordinates": {
+      "origin": [31.99, -102.08],
+      "destination": [31.59, -103.19],
+      "path": [[31.99, -102.08], [31.59, -103.19]]
+    },
+    "volume": {
+      "truck_aadt": "6000-10000",
+      "annual_tonnage_m_tons": 40,
+      "av_loads_per_week": null,
+      "top_commodities": ["Frac sand for major O&G producer"],
+      "source": "Aurora / PRSC",
+      "year": 2025
+    },
+    "notes": "First PUBLIC road frac sand AV hauling. Permian crash rate 4× state avg. ~200 traffic deaths/yr in region. 30 trucks × 20+ hrs/day."
+  },
+  {
+    "id": "gatik-dfw",
+    "name": "DFW Middle-Mile Network",
+    "company": "gatik",
+    "status": "active",
+    "corridor": "Local / urban",
+    "distance_miles": null,
+    "origin": "dallas",
+    "destination": "dallas",
+    "waypoints": [],
+    "launched": "Jan 2026",
+    "truck_count": "26-30 ft medium-duty",
+    "customers": ["Walmart", "Kroger", "Pitney Bowes"],
+    "power_type": "Mixed (autonomous)",
+    "fuel_economy_mpg": null,
+    "coordinates": {
+      "origin": [32.78, -96.80],
+      "destination": [32.78, -96.80]
+    },
+    "volume": {
+      "truck_aadt": null,
+      "annual_tonnage_m_tons": null,
+      "av_loads_per_week": 8570,
+      "top_commodities": ["Retail: ambient, refrigerated, frozen goods"],
+      "source": "Gatik",
+      "year": 2026
+    },
+    "notes": "First NA company to deploy fully driverless at commercial scale. 60,000+ orders. $600M contracted revenue. Middle-mile only."
+  },
+  {
+    "id": "waabi-dh",
+    "name": "Dallas → Houston (Waabi)",
+    "company": "waabi",
+    "status": "planned",
+    "corridor": "I-45",
+    "distance_miles": 240,
+    "origin": "lancaster",
+    "destination": "houston",
+    "waypoints": [],
+    "launched": "Planned 2026",
+    "truck_count": "TBD",
+    "customers": [],
+    "power_type": "Diesel (autonomous)",
+    "fuel_economy_mpg": "9-11",
+    "coordinates": {
+      "origin": [32.59, -96.76],
+      "destination": [29.95, -95.69],
+      "path": [[32.59, -96.76], [31.55, -96.53], [29.95, -95.69]]
+    },
+    "volume": {
+      "truck_aadt": "18000-25000",
+      "annual_tonnage_m_tons": 200,
+      "av_loads_per_week": null,
+      "top_commodities": ["Same as I-45 corridor"],
+      "source": "TxDOT",
+      "year": 2024
+    },
+    "notes": "8-acre terminal in Lancaster (south of Dallas). AI-simulation-first approach. Backed by Uber, Nvidia, Khosla."
+  },
+  {
+    "id": "bot-hsa",
+    "name": "Houston → San Antonio",
+    "company": "bot-auto",
+    "status": "pilot",
+    "corridor": "I-10",
+    "distance_miles": 200,
+    "origin": "houston",
+    "destination": "sanantonio",
+    "waypoints": [],
+    "launched": "Piloting 2025",
+    "truck_count": "8 (w/ drivers)",
+    "customers": ["Steves & Sons"],
+    "power_type": "Diesel (w/ safety driver)",
+    "fuel_economy_mpg": "9-11",
+    "coordinates": {
+      "origin": [29.95, -95.69],
+      "destination": [29.42, -98.49],
+      "path": [[29.95, -95.69], [29.57, -97.00], [29.42, -98.49]]
+    },
+    "volume": {
+      "truck_aadt": "10000-18000",
+      "annual_tonnage_m_tons": 120,
+      "av_loads_per_week": null,
+      "top_commodities": ["Building materials", "Consumer goods"],
+      "source": "TxDOT / FHWA",
+      "year": 2024
+    },
+    "notes": "I-10 corridor. Houston petrochem → SA distribution."
+  },
+  {
+    "id": "bot-hd",
+    "name": "Houston → Dallas (Overnight)",
+    "company": "bot-auto",
+    "status": "planned",
+    "corridor": "I-45",
+    "distance_miles": 240,
+    "origin": "houston",
+    "destination": "dallas",
+    "waypoints": [],
+    "launched": "Planned Spring 2026",
+    "truck_count": "TBD",
+    "customers": ["Ryan Transportation"],
+    "power_type": "Diesel (autonomous)",
+    "fuel_economy_mpg": "9-11",
+    "coordinates": {
+      "origin": [29.95, -95.69],
+      "destination": [32.78, -96.80],
+      "path": [[29.95, -95.69], [30.72, -95.55], [32.78, -96.80]]
+    },
+    "volume": {
+      "truck_aadt": "18000-25000",
+      "annual_tonnage_m_tons": 200,
+      "av_loads_per_week": null,
+      "top_commodities": ["Overnight time-sensitive retail"],
+      "source": "TxDOT",
+      "year": 2024
+    },
+    "notes": "Off-peak overnight lane. Tight delivery window historically underserved by human drivers."
+  }
+]

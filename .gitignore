@@ -1,0 +1,27 @@
+# Data (large files)
+data/faf5/*.csv
+data/faf5/*.zip
+data/faf5/*.db
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Node
+node_modules/
+.next/
+dist/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.local

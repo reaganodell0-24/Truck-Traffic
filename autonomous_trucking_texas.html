@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Texas Autonomous Trucking Route Database</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-primary: #0a0e17;
+  --bg-secondary: #111827;
+  --bg-card: #1a2234;
+  --bg-card-hover: #1e2a40;
+  --accent-aurora: #00d4aa;
+  --accent-kodiak: #f59e0b;
+  --accent-gatik: #8b5cf6;
+  --accent-waabi: #ef4444;
+  --accent-bot: #3b82f6;
+  --accent-tesla: #e11d48;
+  --accent-ev: #06b6d4;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-dim: #64748b;
+  --border: #1e293b;
+  --glow-green: rgba(0, 212, 170, 0.15);
+  --glow-amber: rgba(245, 158, 11, 0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.grain-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 100;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+header {
+  padding: 28px 40px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(0,212,170,0.04) 0%, transparent 100%);
+  position: relative;
+}
+
+header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-aurora), transparent);
+  opacity: 0.4;
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.header-left h1 {
+  font-family: 'Space Mono', monospace;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--text-primary);
+}
+
+.header-left h1 span {
+  color: var(--accent-aurora);
+}
+
+.header-left .subtitle {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-top: 4px;
+  font-family: 'Space Mono', monospace;
+}
+
+.stats-row {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+.stat-block {
+  text-align: right;
+}
+
+.stat-block .val {
+  font-family: 'Space Mono', monospace;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent-aurora);
+}
+
+.stat-block .label {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.main-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  min-height: calc(100vh - 90px);
+}
+
+@media (max-width: 900px) {
+  .main-grid { grid-template-columns: 1fr; }
+}
+
+/* Sidebar */
+.sidebar {
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  max-height: calc(100vh - 90px);
+}
+
+.sidebar-section {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-section h3 {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.chip:hover { border-color: var(--text-dim); }
+.chip.active { border-color: var(--accent-aurora); color: var(--accent-aurora); background: var(--glow-green); }
+.chip[data-company="aurora"].active { border-color: var(--accent-aurora); color: var(--accent-aurora); background: rgba(0,212,170,0.1); }
+.chip[data-company="kodiak"].active { border-color: var(--accent-kodiak); color: var(--accent-kodiak); background: rgba(245,158,11,0.1); }
+.chip[data-company="gatik"].active { border-color: var(--accent-gatik); color: var(--accent-gatik); background: rgba(139,92,246,0.1); }
+.chip[data-company="waabi"].active { border-color: var(--accent-waabi); color: var(--accent-waabi); background: rgba(239,68,68,0.1); }
+.chip[data-company="bot-auto"].active { border-color: var(--accent-bot); color: var(--accent-bot); background: rgba(59,130,246,0.1); }
+
+.chip[data-status="active"].active { border-color: var(--accent-aurora); color: var(--accent-aurora); }
+.chip[data-status="planned"].active { border-color: var(--accent-kodiak); color: var(--accent-kodiak); }
+.chip[data-status="pilot"].active { border-color: var(--accent-ev); color: var(--accent-ev); }
+
+/* Route cards */
+.route-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 0;
+}
+
+.route-card {
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: all 0.15s;
+  border-left: 3px solid transparent;
+}
+
+.route-card:hover {
+  background: var(--bg-card);
+}
+
+.route-card.selected {
+  background: var(--bg-card);
+  border-left-color: var(--accent-aurora);
+}
+
+.route-card .route-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.route-card .route-meta {
+  font-size: 11px;
+  color: var(--text-dim);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.route-card .company-tag {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tag-aurora { background: rgba(0,212,170,0.15); color: var(--accent-aurora); }
+.tag-kodiak { background: rgba(245,158,11,0.15); color: var(--accent-kodiak); }
+.tag-gatik { background: rgba(139,92,246,0.15); color: var(--accent-gatik); }
+.tag-waabi { background: rgba(239,68,68,0.15); color: var(--accent-waabi); }
+.tag-bot-auto { background: rgba(59,130,246,0.15); color: var(--accent-bot); }
+
+.status-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-active { background: var(--accent-aurora); box-shadow: 0 0 6px var(--accent-aurora); }
+.status-planned { background: var(--accent-kodiak); }
+.status-pilot { background: var(--accent-ev); }
+
+/* Map Area */
+.map-area {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-primary);
+}
+
+.texas-map-container {
+  width: 100%;
+  height: 100%;
+  min-height: 600px;
+  position: relative;
+}
+
+.texas-map-container svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Detail Panel */
+.detail-panel {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 360px;
+  max-height: calc(100% - 32px);
+  overflow-y: auto;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px;
+  backdrop-filter: blur(20px);
+  display: none;
+  z-index: 10;
+}
+
+.detail-panel.visible { display: block; }
+
+.detail-panel .close-btn {
+  position: absolute;
+  top: 12px; right: 12px;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px;
+}
+
+.detail-panel h2 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.detail-panel .detail-subtitle {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 16px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.detail-item {
+  background: var(--bg-secondary);
+  padding: 10px 12px;
+  border-radius: 6px;
+}
+
+.detail-item .d-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  margin-bottom: 2px;
+}
+
+.detail-item .d-value {
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.detail-notes {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+/* EV Range Panel at bottom */
+.ev-range-bar {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 20px;
+  z-index: 10;
+}
+
+.ev-range-bar h4 {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--accent-ev);
+  margin-bottom: 10px;
+}
+
+.range-items {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.range-item {
+  flex: 1;
+  min-width: 140px;
+}
+
+.range-item .truck-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.range-bar-track {
+  height: 6px;
+  background: var(--bg-secondary);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 2px;
+}
+
+.range-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--accent-ev), var(--accent-aurora));
+  transition: width 1s ease;
+}
+
+.range-item .range-val {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+/* Legend */
+.map-legend {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  z-index: 10;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.legend-item:last-child { margin-bottom: 0; }
+
+.legend-line {
+  width: 20px; height: 3px;
+  border-radius: 2px;
+}
+
+.legend-circle {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  border: 2px solid;
+}
+
+/* Animations */
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes dash-march {
+  to { stroke-dashoffset: -20; }
+}
+
+.route-line-planned {
+  stroke-dasharray: 8 6;
+  animation: dash-march 1.5s linear infinite;
+}
+
+.route-line-pilot {
+  stroke-dasharray: 4 4;
+  animation: dash-march 2s linear infinite;
+}
+
+.terminal-pulse {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Node tooltips */
+.node-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  fill: var(--text-secondary);
+  pointer-events: none;
+}
+
+.city-dot {
+  cursor: pointer;
+  transition: r 0.2s;
+}
+
+.city-dot:hover {
+  r: 7;
+}
+
+/* Scrollbar */
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.detail-panel::-webkit-scrollbar { width: 4px; }
+.detail-panel::-webkit-scrollbar-track { background: transparent; }
+.detail-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.terminal-section {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.terminal-section h4 {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.terminal-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin: 2px 4px 2px 0;
+}
+
+.terminal-tag .t-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+}
+</style>
+</head>
+<body>
+<div class="grain-overlay"></div>
+
+<header>
+  <div class="header-row">
+    <div class="header-left">
+      <h1>TX <span>AUTONOMOUS</span> ROUTE DB</h1>
+      <div class="subtitle">Commercial &amp; Planned Driverless Freight Corridors — Texas &amp; Sun Belt</div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-block">
+        <div class="val" id="routeCount">17</div>
+        <div class="label">Routes</div>
+      </div>
+      <div class="stat-block">
+        <div class="val" id="activeCount">10</div>
+        <div class="label">Active</div>
+      </div>
+      <div class="stat-block">
+        <div class="val">5</div>
+        <div class="label">Operators</div>
+      </div>
+      <div class="stat-block">
+        <div class="val">250K+</div>
+        <div class="label">Driverless Mi</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="main-grid">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <h3>Operator</h3>
+      <div class="filter-chips" id="companyFilters">
+        <div class="chip active" data-company="all">All</div>
+        <div class="chip" data-company="aurora">Aurora</div>
+        <div class="chip" data-company="kodiak">Kodiak</div>
+        <div class="chip" data-company="gatik">Gatik</div>
+        <div class="chip" data-company="waabi">Waabi</div>
+        <div class="chip" data-company="bot-auto">Bot Auto</div>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <h3>Status</h3>
+      <div class="filter-chips" id="statusFilters">
+        <div class="chip active" data-status="all">All</div>
+        <div class="chip" data-status="active">Active</div>
+        <div class="chip" data-status="pilot">Pilot</div>
+        <div class="chip" data-status="planned">Planned</div>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <h3>EV Stop Calculator</h3>
+      <div class="filter-chips" id="truckTypeFilter">
+        <div class="chip" data-truck="none" style="font-size:11px;">Off</div>
+        <div class="chip" data-truck="semi-lr" style="font-size:11px;">Semi LR (500mi)</div>
+        <div class="chip" data-truck="semi-sr" style="font-size:11px;">Semi SR (325mi)</div>
+        <div class="chip" data-truck="volvo" style="font-size:11px;">Volvo (373mi)</div>
+        <div class="chip" data-truck="ecascadia" style="font-size:11px;">eCascadia (230mi)</div>
+      </div>
+      <div id="stopSummary" style="margin-top:8px;font-size:11px;color:var(--text-dim);line-height:1.5;display:none;"></div>
+    </div>
+    <div class="sidebar-section" style="padding-bottom:0;">
+      <h3>Routes</h3>
+    </div>
+    <div class="route-list" id="routeList"></div>
+  </div>
+
+  <!-- Map Area -->
+  <div class="map-area">
+    <div class="texas-map-container" id="mapContainer"></div>
+
+    <div class="map-legend">
+      <div class="legend-item">
+        <div class="legend-line" style="background:var(--accent-aurora)"></div> Active Driverless
+      </div>
+      <div class="legend-item">
+        <div class="legend-line" style="background:var(--accent-ev); opacity:0.7;"></div> Pilot (w/ Safety Driver)
+      </div>
+      <div class="legend-item">
+        <div class="legend-line" style="background:var(--accent-kodiak); border:1px dashed var(--accent-kodiak); height:1px;"></div> Planned
+      </div>
+      <div class="legend-item">
+        <div class="legend-circle" style="background:var(--accent-aurora); border-color:var(--accent-aurora);"></div> Terminal / Hub
+      </div>
+      <div class="legend-item">
+        <div class="legend-circle" style="background:transparent; border-color:var(--text-dim);"></div> City Node
+      </div>
+      <div class="legend-item">
+        <span style="font-size:10px;margin-right:2px;">⚡</span><span style="width:8px;height:8px;border:1.5px dashed var(--accent-tesla);border-radius:2px;display:inline-block;"></span>&nbsp; Planned Megacharger
+      </div>
+    </div>
+
+    <div class="detail-panel" id="detailPanel">
+      <button class="close-btn" onclick="closeDetail()">&times;</button>
+      <div id="detailContent"></div>
+    </div>
+
+    <div class="ev-range-bar">
+      <div style="display:flex;gap:32px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:280px;">
+          <h4 style="font-family:'Space Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--accent-kodiak);margin-bottom:10px;">Class 8 Diesel MPG (loaded)</h4>
+          <div class="range-items" style="gap:12px;">
+            <div class="range-item">
+              <div class="truck-name">National Fleet Avg</div>
+              <div class="range-bar-track"><div class="range-bar-fill" style="width:68%;background:linear-gradient(90deg,var(--accent-kodiak),#f59e0b);"></div></div>
+              <div class="range-val">~7.8 MPG (NACFE 2023)</div>
+            </div>
+            <div class="range-item">
+              <div class="truck-name">Best-in-Class (NACFE 2026)</div>
+              <div class="range-bar-track"><div class="range-bar-fill" style="width:100%;background:linear-gradient(90deg,var(--accent-kodiak),#f59e0b);"></div></div>
+              <div class="range-val">11.5 MPG (skilled drivers)</div>
+            </div>
+            <div class="range-item">
+              <div class="truck-name">Modern Truck (2025+)</div>
+              <div class="range-bar-track"><div class="range-bar-fill" style="width:91%;background:linear-gradient(90deg,var(--accent-kodiak),#f59e0b);"></div></div>
+              <div class="range-val">10–11 MPG (on-highway)</div>
+            </div>
+            <div class="range-item">
+              <div class="truck-name">Autonomous (Aurora est.)</div>
+              <div class="range-bar-track"><div class="range-bar-fill" style="width:96%;background:linear-gradient(90deg,var(--accent-aurora),#00d4aa);"></div></div>
+              <div class="range-val">9–13 MPG (+13-32% vs conventional)</div>
+            </div>
+          </div>
+        </div>
+        <div style="flex:1;min-width:280px;">
+          <h4 style="font-family:'Space Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--accent-ev);margin-bottom:10px;">Class 8 EV Semi Range (loaded, highway)</h4>
+          <div class="range-items" style="gap:12px;">
+            <div class="range-item">
+              <div class="truck-name">Tesla Semi LR</div>
+              <div class="range-bar-track"><div class="range-bar-fill" style="width:100%"></div></div>
+              <div class="range-val">500 mi / 460 mi real-world</div>
+            </div>
+            <div class="range-item">
+              <div class="truck-name">Tesla Semi SR</div>
+              <div class="range-bar-track"><div class="range-bar-fill" style="width:65%"></div></div>
+              <div class="range-val">325 mi</div>
+            </div>
+            <div class="range-item">
+              <div class="truck-name">Volvo VNR Electric (Next-Gen)</div>
+              <div class="range-bar-track"><div class="range-bar-fill" style="width:75%"></div></div>
+              <div class="range-val">~373 mi</div>
+            </div>
+            <div class="range-item">
+              <div class="truck-name">Freightliner eCascadia</div>
+              <div class="range-bar-track"><div class="range-bar-fill" style="width:46%"></div></div>
+              <div class="range-val">~230 mi</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== DATA ====================
+const cities = {
+  dallas:     { name: "Dallas",       x: 480, y: 180, isTerminal: true,  terminalOf: ["aurora","waabi","gatik"] },
+  palmer:     { name: "Palmer",       x: 472, y: 200, isTerminal: true,  terminalOf: ["aurora"] },
+  fortworth:  { name: "Fort Worth",   x: 445, y: 175, isTerminal: true,  terminalOf: ["aurora","torc"] },
+  houston:    { name: "Houston",      x: 510, y: 340, isTerminal: true,  terminalOf: ["aurora","bot-auto","kodiak"] },
+  sanantonio: { name: "San Antonio",  x: 380, y: 330, isTerminal: false, terminalOf: ["plus-ai"] },
+  austin:     { name: "Austin",       x: 415, y: 280, isTerminal: false, terminalOf: [] },
+  elpaso:     { name: "El Paso",      x: 80,  y: 210, isTerminal: true,  terminalOf: ["aurora"] },
+  laredo:     { name: "Laredo",       x: 330, y: 410, isTerminal: false, terminalOf: [] },
+  midland:    { name: "Midland",      x: 215, y: 205, isTerminal: true,  terminalOf: ["aurora","kodiak"] },
+  odessa:     { name: "Odessa",       x: 200, y: 215, isTerminal: true,  terminalOf: ["kodiak"] },
+  monahans:   { name: "Monahans",     x: 165, y: 210, isTerminal: false, terminalOf: [] },
+  kermit:     { name: "Kermit",       x: 145, y: 195, isTerminal: false, terminalOf: ["kodiak"] },
+  pecos:      { name: "Pecos",        x: 130, y: 210, isTerminal: false, terminalOf: [] },
+  duneexpress:{ name: "Dune Express Terminal", x: 175, y: 190, isTerminal: true, terminalOf: ["kodiak"] },
+  delaware:   { name: "Delaware Basin Wells", x: 140, y: 220, isTerminal: false, terminalOf: [] },
+  lancaster:  { name: "Lancaster",    x: 476, y: 195, isTerminal: true,  terminalOf: ["waabi"] },
+  phoenix:    { name: "Phoenix, AZ",  x: 30,  y: 145, isTerminal: false, terminalOf: [] },
+  oklahoma:   { name: "Oklahoma City",x: 440, y: 60,  isTerminal: false, terminalOf: [] },
+  bentonville:{ name: "Bentonville, AR", x: 510, y: 55, isTerminal: false, terminalOf: [] },
+};
+
+const routes = [
+  {
+    id: "aur-dh",
+    name: "Dallas → Houston",
+    company: "aurora",
+    status: "active",
+    corridor: "I-45",
+    distance: "240 mi",
+    origin: "palmer",
+    destination: "houston",
+    waypoints: [],
+    launched: "Apr 2025",
+    trucks: "10 (5 fully driverless)",
+    customers: "Uber Freight, Hirschbach",
+    powerType: "Diesel (autonomous)",
+    notes: "First-ever commercial driverless trucking service on public roads. Aurora's flagship route. Trucks depart from Palmer terminal south of Dallas, travel I-45 to Houston terminal at Fallbrook Drive logistics hub. 24/7 operations, no driver onboard."
+  },
+  {
+    id: "aur-fwe",
+    name: "Fort Worth → El Paso",
+    company: "aurora",
+    status: "active",
+    corridor: "I-20 / I-10",
+    distance: "600 mi",
+    origin: "fortworth",
+    destination: "elpaso",
+    waypoints: ["midland"],
+    launched: "Oct 2025",
+    trucks: "5+",
+    customers: "Multiple carriers",
+    powerType: "Diesel (autonomous)",
+    notes: "Aurora's second driverless lane, launched just 6 months after Dallas-Houston. The 10-hour haul is difficult for human drivers under HOS rules, making it ideal for autonomous operations. Route passes through Permian Basin corridor."
+  },
+  {
+    id: "aur-fwp",
+    name: "Fort Worth → Phoenix",
+    company: "aurora",
+    status: "active",
+    corridor: "I-20 / I-10",
+    distance: "1,000 mi",
+    origin: "fortworth",
+    destination: "phoenix",
+    waypoints: ["elpaso"],
+    launched: "Feb 2026",
+    trucks: "Expanding",
+    customers: "Hirschbach Motor Lines",
+    powerType: "Diesel (autonomous)",
+    notes: "Aurora's longest route. Completed in ~15 hours vs 2+ days for human drivers under HOS rules. Validates the economic case for long-haul autonomy. Fourth software release since driverless launch."
+  },
+  {
+    id: "aur-dl",
+    name: "Dallas → Laredo",
+    company: "aurora",
+    status: "active",
+    corridor: "I-35",
+    distance: "430 mi",
+    origin: "dallas",
+    destination: "laredo",
+    waypoints: ["sanantonio"],
+    launched: "2025",
+    trucks: "Part of 30-truck fleet",
+    customers: "Various",
+    powerType: "Diesel (autonomous)",
+    notes: "Key cross-border freight corridor. Part of Aurora's 10-lane network. Laredo is the largest inland port in the US for US-Mexico trade. Strategic for NAFTA/USMCA freight flows."
+  },
+  {
+    id: "aur-da",
+    name: "Dallas → Austin",
+    company: "aurora",
+    status: "active",
+    corridor: "I-35",
+    distance: "195 mi",
+    origin: "dallas",
+    destination: "austin",
+    waypoints: [],
+    launched: "2025",
+    trucks: "Part of 30-truck fleet",
+    customers: "Various",
+    powerType: "Diesel (autonomous)",
+    notes: "Part of the Texas Triangle network. I-35 corridor serves as backbone for Texas freight."
+  },
+  {
+    id: "aur-dsa",
+    name: "Dallas → San Antonio",
+    company: "aurora",
+    status: "active",
+    corridor: "I-35",
+    distance: "275 mi",
+    origin: "dallas",
+    destination: "sanantonio",
+    waypoints: ["austin"],
+    launched: "2025",
+    trucks: "Part of 30-truck fleet",
+    customers: "FedEx, Werner, Schneider",
+    powerType: "Diesel (autonomous)",
+    notes: "Full I-35 corridor through the Texas Triangle. Critical freight lane connecting major metro areas."
+  },
+  {
+    id: "kod-permian-dune",
+    name: "Dune Express → Well Sites",
+    company: "kodiak",
+    status: "active",
+    corridor: "Private lease roads",
+    distance: "21+ mi per run",
+    origin: "duneexpress",
+    destination: "delaware",
+    waypoints: [],
+    launched: "May 2024 (driverless)",
+    trucks: "10 driverless (100 on order)",
+    customers: "Atlas Energy Solutions",
+    powerType: "Diesel (autonomous)",
+    fuelEconomy: "N/A (low-speed off-road)",
+    notes: "Largest autonomous vehicle fleet in industrial use. Atlas's 42-mile Dune Express conveyor carries sand from mines near Kermit to a transfer point. From there, Kodiak driverless trucks deliver frac sand to well sites across the Delaware Basin. 24/7 operations, no humans in cab. Trucks operate at ~20 mph on private lease roads through dust, heat, and rugged terrain. Kodiak office in Odessa (18,000 SF, 12+ staff). 100-truck binding order being fulfilled through 2026."
+  },
+  {
+    id: "kod-permian-expand",
+    name: "Permian Basin Wide Network",
+    company: "kodiak",
+    status: "active",
+    corridor: "Private / leased roads",
+    distance: "75,000 sq mi coverage",
+    origin: "odessa",
+    destination: "kermit",
+    waypoints: ["duneexpress"],
+    launched: "Jan 2025 (customer-owned)",
+    trucks: "10 (scaling to 100)",
+    customers: "Atlas Energy Solutions",
+    powerType: "Diesel (autonomous)",
+    fuelEconomy: "N/A (off-road industrial)",
+    notes: "Atlas now owns and operates its own Kodiak Driver-equipped RoboTrucks across the 75,000 sq mi Permian Basin spanning West Texas and Eastern New Mexico. First customer-owned autonomous fleet in commercial service. Trucks pull doubles (two trailers). Night driving capability added. Dynamic routes dispatched by Atlas — not fixed paths. Kodiak remote command center monitors fleet via Verizon 5G connectivity."
+  },
+  {
+    id: "aur-permian-detmar",
+    name: "Midland → Monahans (Frac Sand)",
+    company: "aurora",
+    status: "active",
+    corridor: "I-20 + local/private",
+    distance: "~50 mi",
+    origin: "midland",
+    destination: "monahans",
+    waypoints: [],
+    launched: "Q1 2026 (supervised) → Q2 2026 (driverless)",
+    trucks: "30 committed for 2026",
+    customers: "Detmar Logistics → Major oil & gas co.",
+    powerType: "Diesel (autonomous)",
+    fuelEconomy: "Est. 8–10 MPG (loaded, mixed road)",
+    notes: "First autonomous frac sand hauling on PUBLIC roads in the Permian Basin. Aurora partnered with Detmar Logistics to transport proppant from Detmar's Midland facility to Capital Sand's mining site in Monahans. Route combines I-20 highway driving with local and private roads. Trucks operate 20+ hours/day. Aurora Driver autonomously navigates overhead filling silos at the mining site for proppant loading. Permian region has ~200 traffic deaths/year — safety is a key driver. Route 285 and I-20 are among the most dangerous roads in the US."
+  },
+  {
+    id: "kod-permian-highway",
+    name: "Permian → Dallas (Long-Haul Prep)",
+    company: "kodiak",
+    status: "planned",
+    corridor: "I-20",
+    distance: "~300 mi",
+    origin: "midland",
+    destination: "dallas",
+    waypoints: [],
+    launched: "Target: H2 2026",
+    trucks: "TBD",
+    customers: "TBD (Werner TMS integrated)",
+    powerType: "Diesel (autonomous)",
+    fuelEconomy: "Est. 9–11 MPG (highway, autonomous)",
+    notes: "Kodiak targets long-haul driverless highway service H2 2026. ARM (Autonomous Readiness Metric) stood at 78% in Nov 2025. Permian operations are providing invaluable data to accelerate highway deployment. Werner Enterprises has integrated Kodiak Driver into its TMS so autonomous trucks can be dispatched alongside human fleet. Bosch partnership (announced CES 2026) provides redundant steering, braking, and sensor systems for production-grade highway deployment."
+  },
+  {
+    id: "kod-dh",
+    name: "Dallas → Houston (Supervised)",
+    company: "kodiak",
+    status: "pilot",
+    corridor: "I-45",
+    distance: "240 mi",
+    origin: "dallas",
+    destination: "houston",
+    waypoints: [],
+    launched: "2024 (w/ safety driver)",
+    trucks: "Multiple",
+    customers: "Various",
+    powerType: "Diesel (w/ safety driver)",
+    fuelEconomy: "Est. 9–11 MPG",
+    notes: "Kodiak operates supervised autonomous runs on I-45 between Dallas and Houston alongside its Permian operations. Safety driver onboard. Part of Kodiak's strategy to expand from industrial Permian success to long-haul highway driverless by H2 2026."
+  },
+  {
+    id: "kod-dok",
+    name: "Dallas → Oklahoma City",
+    company: "kodiak",
+    status: "pilot",
+    corridor: "I-35",
+    distance: "~200 mi",
+    origin: "dallas",
+    destination: "oklahoma",
+    waypoints: [],
+    launched: "2024 (w/ safety driver)",
+    trucks: "Multiple",
+    customers: "Refrigerated freight / QSR",
+    powerType: "Diesel (w/ safety driver)",
+    fuelEconomy: "Est. 9–11 MPG",
+    notes: "Kodiak delivers refrigerated freight for quick service restaurants between Dallas and Oklahoma City with supervised autonomous trucks. Part of expanding highway route network. Safety driver removal targeted for H2 2026."
+  },
+  {
+    id: "kod-lh",
+    name: "Atlanta → Dallas (Long-Haul)",
+    company: "kodiak",
+    status: "pilot",
+    corridor: "I-20",
+    distance: "750 mi",
+    origin: "dallas",
+    destination: "dallas",
+    waypoints: [],
+    launched: "2024 (w/ safety driver)",
+    trucks: "Multiple",
+    customers: "J.B. Hunt, Bridgestone",
+    powerType: "Diesel (w/ safety driver)",
+    fuelEconomy: "Est. 9–11 MPG",
+    notes: "Transports Bridgestone tires from SC→GA Pilot truckport→Dallas. 750-mile stretch from Atlanta to Dallas completed using Kodiak's autonomous tech with safety driver supervision. Kodiak partnered with Pilot Company to build truckport at GA hub for refueling, maintenance, and pre-trip inspections. Targeting fully driverless long-haul on highways H2 2026."
+  },
+  {
+    id: "gatik-dfw",
+    name: "DFW Middle-Mile Network",
+    company: "gatik",
+    status: "active",
+    corridor: "Local / urban",
+    distance: "Short-haul routes",
+    origin: "dallas",
+    destination: "dallas",
+    waypoints: [],
+    launched: "Jan 2026 (driverless)",
+    trucks: "26-30 ft medium-duty",
+    customers: "Walmart, Kroger, Pitney Bowes",
+    powerType: "Diesel/EV (autonomous)",
+    notes: "First company in North America to deploy fully driverless trucks at commercial scale (Jan 2026). Operates between distribution centers and retail stores. Ambient, refrigerated, and frozen goods. $600M in contracted revenue. Focuses on middle-mile (DC to store), not long-haul."
+  },
+  {
+    id: "waabi-dh",
+    name: "Dallas → Houston",
+    company: "waabi",
+    status: "planned",
+    corridor: "I-45",
+    distance: "240 mi",
+    origin: "lancaster",
+    destination: "houston",
+    waypoints: [],
+    launched: "Planned 2026",
+    trucks: "TBD",
+    customers: "TBD",
+    powerType: "Diesel (autonomous)",
+    notes: "Toronto-based Waabi opened an 8-acre terminal in Lancaster (south of Dallas) in April 2024. Planning driver-out operations between Dallas and Houston metros. AI-first approach using Waabi World simulator to reduce real-world testing needs. Backed by Uber, Nvidia, Khosla Ventures."
+  },
+  {
+    id: "bot-hsa",
+    name: "Houston → San Antonio",
+    company: "bot-auto",
+    status: "pilot",
+    corridor: "I-10",
+    distance: "~200 mi",
+    origin: "houston",
+    destination: "sanantonio",
+    waypoints: [],
+    launched: "Piloting 2025",
+    trucks: "8 (w/ drivers)",
+    customers: "Steves & Sons (via J.B. Hunt)",
+    powerType: "Diesel (w/ safety driver)",
+    notes: "Houston-based Bot Auto piloting on I-10 corridor. Manufacturing partner Steves & Sons envisions routes connecting Dallas, San Antonio, and Houston. Targeting driverless public road operations by end of 2025 / spring 2026."
+  },
+  {
+    id: "bot-hd",
+    name: "Houston → Dallas (Overnight)",
+    company: "bot-auto",
+    status: "planned",
+    corridor: "I-45",
+    distance: "~240 mi",
+    origin: "houston",
+    destination: "dallas",
+    waypoints: [],
+    launched: "Planned Spring 2026",
+    trucks: "TBD",
+    customers: "Ryan Transportation",
+    powerType: "Diesel (autonomous)",
+    notes: "Overnight lane connecting Houston to the southern DFW metroplex. Tight delivery window that has historically been difficult to service with human drivers. Partnered with Ryan Transportation for humanless freight runs."
+  },
+];
+
+// ==================== CORRIDOR VOLUME DATA ====================
+// Sources: TxDOT TFMP, FHWA FAF5, ATRI, Aurora/Kodiak press releases
+const corridorVolume = {
+  "aur-dh":   { truckAADT: "18,000–25,000", annualTons: "~200M tons", avLoads: "75+/wk", topCommodities: "Consumer goods, auto parts, Port of Houston cargo, gasoline", note: "~50% of all TX truck freight moves on I-45. Port of Houston = 2nd largest US marine port by tonnage." },
+  "aur-fwe":  { truckAADT: "5,000–12,000", annualTons: "~80M tons", avLoads: "Scaling", topCommodities: "O&G equipment, frac sand, consumer goods", note: "Volume drops west of Abilene. Permian oilfield traffic spikes near Midland." },
+  "aur-fwp":  { truckAADT: "3,000–8,000", annualTons: "~60M tons", avLoads: "Scaling", topCommodities: "General freight, manufacturing, produce", note: "Longest active AV route. Lower volume but high-value for 24/7 ops (15 hrs vs 2+ days HOS)." },
+  "aur-dl":   { truckAADT: "12,000–20,000+", annualTons: "~250M+ tons", avLoads: "Part of fleet", topCommodities: "Cross-border (83% of MX-TX by truck), auto, electronics, produce", note: "Laredo = #1 US inland port. 3.7M+ inbound MX trucks/yr. I-35 = highest tonnage corridor in TX." },
+  "aur-da":   { truckAADT: "10,000–16,000", annualTons: "~120M tons", avLoads: "Part of fleet", topCommodities: "Tech, consumer goods, building materials, food", note: "TX Triangle core. Austin metro growth driving volume increase." },
+  "aur-dsa":  { truckAADT: "12,000–20,000", annualTons: "~180M tons", avLoads: "Part of fleet", topCommodities: "Consumer, auto, building materials, military", note: "Full I-35 TX Triangle. Predicted inadequate LOS by 2045 without expansion." },
+  "kod-permian-dune": { truckAADT: "2,000–5,000 (pvt)", annualTons: "Varies w/ rig count", avLoads: "100+ (cumul.)", topCommodities: "Frac sand / proppant", note: "Volume tied to simul-frac activity. Single well pad = 10,000 tons of sand." },
+  "kod-permian-expand": { truckAADT: "Varies", annualTons: "Massive basin-wide", avLoads: "Scaling to 100 trucks", topCommodities: "Frac sand, proppant, oilfield", note: "Dynamic routes. Volume tracks ~470+ active Permian rigs." },
+  "aur-permian-detmar": { truckAADT: "6,000–10,000", annualTons: "~40M tons", avLoads: "30 trucks × 20 hrs/day", topCommodities: "Frac sand for major O&G producer", note: "First PUBLIC road frac sand AV hauling. Permian crash rate 4× state avg." },
+  "kod-permian-highway": { truckAADT: "5,000–10,000", annualTons: "~70M tons", avLoads: "TBD (H2 2026)", topCommodities: "O&G, general freight, building materials", note: "Volume increases approaching DFW. Key Permian→DC corridor." },
+  "kod-dh":   { truckAADT: "18,000–25,000", annualTons: "~200M tons", avLoads: "Pilot phase", topCommodities: "Same as I-45 corridor", note: "Same high-volume I-45 corridor. Kodiak supervised alongside Aurora driverless." },
+  "kod-dok":  { truckAADT: "8,000–15,000", annualTons: "~100M tons", avLoads: "Pilot phase", topCommodities: "Refrigerated QSR, consumer, energy equipment", note: "I-35 north to OKC distribution hub." },
+  "kod-lh":   { truckAADT: "8,000–14,000", annualTons: "~90M tons", avLoads: "Pilot phase", topCommodities: "Tires (Bridgestone), auto parts, general freight", note: "I-20 east. Pilot truckport in GA for refueling." },
+  "gatik-dfw":{ truckAADT: "N/A (urban)", annualTons: "N/A", avLoads: "60,000+ orders", topCommodities: "Retail: ambient, refrigerated, frozen goods", note: "Middle-mile DC→store. $600M contracted. High frequency, short distance." },
+  "waabi-dh": { truckAADT: "18,000–25,000", annualTons: "~200M tons", avLoads: "TBD", topCommodities: "Same I-45 corridor", note: "Will compete on same high-volume I-45 as Aurora/Kodiak." },
+  "bot-hsa":  { truckAADT: "10,000–18,000", annualTons: "~120M tons", avLoads: "Pilot (8 trucks)", topCommodities: "Building materials, consumer goods", note: "I-10 corridor. Houston petrochem → SA distribution." },
+  "bot-hd":   { truckAADT: "18,000–25,000", annualTons: "~200M tons", avLoads: "TBD", topCommodities: "Overnight time-sensitive retail/distribution", note: "Off-peak overnight lane. Same high-volume I-45." },
+};
+
+// ==================== STATE ====================
+let selectedCompany = 'all';
+let selectedStatus = 'all';
+let selectedRoute = null;
+
+// ==================== RENDER ====================
+function getCompanyColor(company) {
+  const map = {
+    aurora: '#00d4aa', kodiak: '#f59e0b', gatik: '#8b5cf6',
+    waabi: '#ef4444', 'bot-auto': '#3b82f6'
+  };
+  return map[company] || '#64748b';
+}
+
+function getStatusClass(status) {
+  return `status-${status}`;
+}
+
+function getRouteLineClass(status) {
+  if (status === 'planned') return 'route-line-planned';
+  if (status === 'pilot') return 'route-line-pilot';
+  return '';
+}
+
+function filterRoutes() {
+  return routes.filter(r => {
+    if (selectedCompany !== 'all' && r.company !== selectedCompany) return false;
+    if (selectedStatus !== 'all' && r.status !== selectedStatus) return false;
+    return true;
+  });
+}
+
+function renderRouteList() {
+  const list = document.getElementById('routeList');
+  const filtered = filterRoutes();
+  list.innerHTML = filtered.map(r => {
+    let stopTag = '';
+    if (selectedTruckType !== 'none') {
+      const truck = truckTypes[selectedTruckType];
+      const dist = parseDistance(r.distance);
+      if (dist > 0) {
+        const canDirect = dist <= truck.range;
+        const { stops } = calcStops(dist, truck.range);
+        stopTag = canDirect 
+          ? `<span style="font-size:10px;color:var(--accent-aurora);font-family:'Space Mono',monospace;">⚡0</span>`
+          : `<span style="font-size:10px;color:${truck.color};font-family:'Space Mono',monospace;">⚡${stops}</span>`;
+      }
+    }
+    return `
+    <div class="route-card ${selectedRoute === r.id ? 'selected' : ''}" data-id="${r.id}" onclick="selectRoute('${r.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;">
+        <div class="route-name">${r.name}</div>
+        <div style="display:flex;gap:6px;align-items:center;">
+          ${stopTag}
+          <span class="company-tag tag-${r.company}">${r.company.replace('-',' ')}</span>
+        </div>
+      </div>
+      <div class="route-meta">
+        <span class="status-dot ${getStatusClass(r.status)}"></span>
+        <span>${r.status.charAt(0).toUpperCase() + r.status.slice(1)}</span>
+        <span>•</span>
+        <span>${r.corridor}</span>
+        <span>•</span>
+        <span>${r.distance}</span>
+        ${corridorVolume[r.id] ? `<span>•</span><span style="color:var(--accent-ev);">${corridorVolume[r.id].truckAADT} trucks/day</span>` : ''}
+      </div>
+    </div>
+  `}).join('');
+
+  document.getElementById('routeCount').textContent = filtered.length;
+  document.getElementById('activeCount').textContent = filtered.filter(r => r.status === 'active').length;
+}
+
+function renderMap() {
+  const container = document.getElementById('mapContainer');
+  const filtered = filterRoutes();
+  const W = 620, H = 480;
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+  
+  // Texas outline (simplified)
+  svg += `<path d="M340,20 L540,20 L560,80 L570,120 L560,160 L540,200 L560,260 L570,300 L560,340 L540,380 L500,420 L460,450 L400,460 L340,440 L300,420 L260,380 L240,340 L200,320 L160,300 L120,280 L100,260 L80,230 L70,200 L80,170 L100,140 L130,120 L160,100 L200,80 L240,60 L280,40 L340,20Z" 
+    fill="none" stroke="rgba(100,116,139,0.15)" stroke-width="1.5"/>`;
+
+  // Permian Basin region highlight
+  svg += `<rect x="110" y="175" width="140" height="75" rx="8" ry="8" 
+    fill="rgba(245,158,11,0.04)" stroke="rgba(245,158,11,0.2)" stroke-width="1" stroke-dasharray="4 3"/>`;
+  svg += `<text x="180" y="245" text-anchor="middle" style="font-family:'Space Mono',monospace;font-size:8px;fill:rgba(245,158,11,0.4);letter-spacing:1px;">PERMIAN BASIN</text>`;
+
+  // Grid lines
+  for (let x = 50; x < W; x += 80) {
+    svg += `<line x1="${x}" y1="0" x2="${x}" y2="${H}" stroke="rgba(100,116,139,0.04)" stroke-width="0.5"/>`;
+  }
+  for (let y = 50; y < H; y += 80) {
+    svg += `<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="rgba(100,116,139,0.04)" stroke-width="0.5"/>`;
+  }
+
+  // Draw routes
+  filtered.forEach(r => {
+    if (r.origin === r.destination) return; // skip circular routes
+    const orig = cities[r.origin];
+    const dest = cities[r.destination];
+    if (!orig || !dest) return;
+    
+    const color = getCompanyColor(r.company);
+    const lineClass = getRouteLineClass(r.status);
+    const opacity = r.status === 'planned' ? 0.5 : r.status === 'pilot' ? 0.65 : 0.85;
+    const width = selectedRoute === r.id ? 3.5 : 2;
+    const glow = selectedRoute === r.id ? `filter="url(#glow-${r.company})"` : '';
+
+    // Build path through waypoints
+    let points = [orig];
+    r.waypoints.forEach(wp => { if (cities[wp]) points.push(cities[wp]); });
+    points.push(dest);
+
+    let pathD = `M${points[0].x},${points[0].y}`;
+    for (let i = 1; i < points.length; i++) {
+      const prev = points[i-1];
+      const curr = points[i];
+      const cx = (prev.x + curr.x) / 2;
+      const cy = (prev.y + curr.y) / 2 - 15;
+      pathD += ` Q${cx},${cy} ${curr.x},${curr.y}`;
+    }
+
+    svg += `<path d="${pathD}" fill="none" stroke="${color}" stroke-width="${width}" 
+      stroke-opacity="${opacity}" stroke-linecap="round" class="${lineClass}" ${glow}
+      data-route="${r.id}" style="cursor:pointer;" onclick="selectRoute('${r.id}')"/>`;
+  });
+
+  // Draw city nodes
+  Object.entries(cities).forEach(([key, city]) => {
+    const isTerminal = city.isTerminal;
+    const isInRoute = filtered.some(r => r.origin === key || r.destination === key || r.waypoints.includes(key));
+    if (!isInRoute && !isTerminal) return;
+
+    const r = isTerminal ? 5 : 3.5;
+    const fill = isTerminal ? '#00d4aa' : '#1e293b';
+    const stroke = isTerminal ? '#00d4aa' : '#64748b';
+    const strokeW = isTerminal ? 2 : 1.5;
+
+    if (isTerminal) {
+      svg += `<circle cx="${city.x}" cy="${city.y}" r="12" fill="rgba(0,212,170,0.08)" class="terminal-pulse"/>`;
+    }
+
+    svg += `<circle cx="${city.x}" cy="${city.y}" r="${r}" fill="${fill}" stroke="${stroke}" 
+      stroke-width="${strokeW}" class="city-dot" data-city="${key}"/>`;
+    
+    // Label
+    const labelX = city.x + (city.x > 400 ? -5 : 10);
+    const anchor = city.x > 400 ? 'end' : 'start';
+    svg += `<text x="${labelX}" y="${city.y - 10}" class="node-label" text-anchor="${anchor}">${city.name}</text>`;
+  });
+
+  // Glow filters
+  ['aurora','kodiak','gatik','waabi','bot-auto'].forEach(c => {
+    const color = getCompanyColor(c);
+    svg += `<defs><filter id="glow-${c}" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feFlood flood-color="${color}" flood-opacity="0.4"/>
+      <feComposite in2="blur" operator="in"/>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter></defs>`;
+  });
+
+  svg += `</svg>`;
+
+  // Insert charging stops before closing
+  svg = svg.replace('</svg>', '');
+  svg = renderChargingStops(svg);
+  svg += `</svg>`;
+  
+  container.innerHTML = svg;
+}
+
+function selectRoute(id) {
+  selectedRoute = id;
+  renderRouteList();
+  renderMap();
+  showDetail(id);
+}
+
+function showDetail(id) {
+  const r = routes.find(rt => rt.id === id);
+  if (!r) return;
+  const panel = document.getElementById('detailPanel');
+  const content = document.getElementById('detailContent');
+
+  const orig = cities[r.origin];
+  const dest = cities[r.destination];
+  const color = getCompanyColor(r.company);
+
+  let terminalHtml = '';
+  if (orig && orig.isTerminal) {
+    terminalHtml += `<div class="terminal-tag"><span class="t-dot" style="background:${color}"></span> Origin: ${orig.name} Terminal</div>`;
+  }
+  if (dest && dest.isTerminal && r.origin !== r.destination) {
+    terminalHtml += `<div class="terminal-tag"><span class="t-dot" style="background:${color}"></span> Destination: ${dest.name} Terminal</div>`;
+  }
+
+  content.innerHTML = `
+    <h2>${r.name}</h2>
+    <div class="detail-subtitle">
+      <span class="company-tag tag-${r.company}" style="margin-right:8px;">${r.company.replace('-',' ')}</span>
+      <span class="status-dot ${getStatusClass(r.status)}" style="margin-right:4px;"></span>
+      ${r.status.charAt(0).toUpperCase() + r.status.slice(1)}
+    </div>
+    <div class="detail-grid">
+      <div class="detail-item">
+        <div class="d-label">Corridor</div>
+        <div class="d-value">${r.corridor}</div>
+      </div>
+      <div class="detail-item">
+        <div class="d-label">Distance</div>
+        <div class="d-value">${r.distance}</div>
+      </div>
+      <div class="detail-item">
+        <div class="d-label">Launched</div>
+        <div class="d-value">${r.launched}</div>
+      </div>
+      <div class="detail-item">
+        <div class="d-label">Trucks</div>
+        <div class="d-value" style="font-size:12px;">${r.trucks}</div>
+      </div>
+      <div class="detail-item">
+        <div class="d-label">Power Type</div>
+        <div class="d-value" style="font-size:11px;">${r.powerType}</div>
+      </div>
+      <div class="detail-item">
+        <div class="d-label">Fuel Economy</div>
+        <div class="d-value" style="font-size:11px;">${r.fuelEconomy || 'Est. 8–11 MPG (Class 8)'}</div>
+      </div>
+      <div class="detail-item">
+        <div class="d-label">Customers</div>
+        <div class="d-value" style="font-size:11px;">${r.customers}</div>
+      </div>
+      <div class="detail-item">
+        <div class="d-label">Refueling</div>
+        <div class="d-value" style="font-size:11px;">${r.corridor.includes('Private') || r.corridor.includes('local') ? 'On-site depot' : 'Terminal hub'}</div>
+      </div>
+    </div>
+    ${terminalHtml ? `<div class="terminal-section"><h4>Terminals</h4>${terminalHtml}</div>` : ''}
+    ${corridorVolume[r.id] ? `
+    <div class="terminal-section">
+      <h4 style="color:var(--accent-ev);">Corridor Volume</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+        <div class="detail-item">
+          <div class="d-label">Truck AADT</div>
+          <div class="d-value" style="font-size:12px;">${corridorVolume[r.id].truckAADT}</div>
+        </div>
+        <div class="detail-item">
+          <div class="d-label">Annual Tonnage</div>
+          <div class="d-value" style="font-size:12px;">${corridorVolume[r.id].annualTons}</div>
+        </div>
+        <div class="detail-item">
+          <div class="d-label">AV Loads</div>
+          <div class="d-value" style="font-size:12px;">${corridorVolume[r.id].avLoads}</div>
+        </div>
+        <div class="detail-item">
+          <div class="d-label">Top Commodities</div>
+          <div class="d-value" style="font-size:10px;font-weight:500;line-height:1.3;">${corridorVolume[r.id].topCommodities}</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--text-secondary);margin-top:8px;line-height:1.5;">${corridorVolume[r.id].note}</div>
+    </div>` : ''}
+    ${getStopAnalysis(r)}
+    <div class="detail-notes">${r.notes}</div>
+  `;
+
+  panel.classList.add('visible');
+}
+
+function closeDetail() {
+  document.getElementById('detailPanel').classList.remove('visible');
+  selectedRoute = null;
+  renderRouteList();
+  renderMap();
+}
+
+// ==================== FILTERS ====================
+document.getElementById('companyFilters').addEventListener('click', e => {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+  const val = chip.dataset.company;
+  if (val === 'all') {
+    selectedCompany = 'all';
+  } else {
+    selectedCompany = selectedCompany === val ? 'all' : val;
+  }
+  document.querySelectorAll('#companyFilters .chip').forEach(c => c.classList.remove('active'));
+  if (selectedCompany === 'all') {
+    document.querySelector('#companyFilters .chip[data-company="all"]').classList.add('active');
+  } else {
+    chip.classList.add('active');
+  }
+  selectedRoute = null;
+  closeDetail();
+  renderRouteList();
+  renderMap();
+});
+
+document.getElementById('statusFilters').addEventListener('click', e => {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+  const val = chip.dataset.status;
+  if (val === 'all') {
+    selectedStatus = 'all';
+  } else {
+    selectedStatus = selectedStatus === val ? 'all' : val;
+  }
+  document.querySelectorAll('#statusFilters .chip').forEach(c => c.classList.remove('active'));
+  if (selectedStatus === 'all') {
+    document.querySelector('#statusFilters .chip[data-status="all"]').classList.add('active');
+  } else {
+    chip.classList.add('active');
+  }
+  selectedRoute = null;
+  closeDetail();
+  renderRouteList();
+  renderMap();
+});
+
+// ==================== TRUCK TYPES & STOP CALCULATOR ====================
+const truckTypes = {
+  'semi-lr': { name: 'Tesla Semi LR', range: 500, chargeTime: '30 min to 60%', color: '#e11d48' },
+  'semi-sr': { name: 'Tesla Semi SR', range: 325, chargeTime: '30 min to 60%', color: '#f43f5e' },
+  'volvo':   { name: 'Volvo VNR Electric', range: 373, chargeTime: '~90 min', color: '#3b82f6' },
+  'ecascadia': { name: 'Freightliner eCascadia', range: 230, chargeTime: '~90 min', color: '#8b5cf6' },
+};
+
+// Texas Megacharger / Charging Locations (Planned & Existing along corridors)
+const chargingStops = [
+  // I-45 Corridor (Dallas → Houston)
+  { name: "Pilot - Corsicana", corridor: "I-45", lat: 32.09, x: 478, y: 215, type: "megacharger", status: "planned" },
+  { name: "Pilot - Huntsville", corridor: "I-45", lat: 30.72, x: 495, y: 270, type: "megacharger", status: "planned" },
+  { name: "Pilot - Madisonville", corridor: "I-45", lat: 30.95, x: 490, y: 255, type: "megacharger", status: "planned" },
+  // I-35 Corridor (Dallas → San Antonio → Laredo)
+  { name: "Pilot - Hillsboro", corridor: "I-35", lat: 32.01, x: 455, y: 220, type: "megacharger", status: "planned" },
+  { name: "Pilot - Waco", corridor: "I-35", lat: 31.55, x: 445, y: 240, type: "megacharger", status: "planned" },
+  { name: "Pilot - Temple/Belton", corridor: "I-35", lat: 31.05, x: 430, y: 260, type: "megacharger", status: "planned" },
+  { name: "Pilot - San Marcos", corridor: "I-35", lat: 29.88, x: 400, y: 300, type: "megacharger", status: "planned" },
+  { name: "Pilot - New Braunfels", corridor: "I-35", lat: 29.70, x: 390, y: 310, type: "megacharger", status: "planned" },
+  // I-10 Corridor (Houston → San Antonio → El Paso)
+  { name: "Pilot - Seguin/Luling", corridor: "I-10", lat: 29.57, x: 420, y: 330, type: "megacharger", status: "planned" },
+  { name: "Pilot - Kerrville area", corridor: "I-10", lat: 30.05, x: 365, y: 300, type: "megacharger", status: "planned" },
+  { name: "Pilot - Junction", corridor: "I-10", lat: 30.49, x: 330, y: 280, type: "megacharger", status: "planned" },
+  { name: "Pilot - Fort Stockton", corridor: "I-10/I-20", lat: 30.89, x: 155, y: 230, type: "megacharger", status: "planned" },
+  // I-20 Corridor (Fort Worth → Midland → El Paso)
+  { name: "Pilot - Weatherford/Abilene", corridor: "I-20", lat: 32.45, x: 370, y: 185, type: "megacharger", status: "planned" },
+  { name: "Pilot - Sweetwater", corridor: "I-20", lat: 32.47, x: 310, y: 190, type: "megacharger", status: "planned" },
+  { name: "Pilot - Big Spring", corridor: "I-20", lat: 32.25, x: 260, y: 200, type: "megacharger", status: "planned" },
+  { name: "Pilot - Midland/Odessa", corridor: "I-20", lat: 31.99, x: 210, y: 210, type: "megacharger", status: "planned" },
+  { name: "Pilot - Pecos", corridor: "I-20/I-10", lat: 31.42, x: 135, y: 215, type: "megacharger", status: "planned" },
+  // Giga Texas (existing)
+  { name: "Giga Texas Megacharger", corridor: "I-35", lat: 30.22, x: 420, y: 278, type: "megacharger", status: "active" },
+  // Houston area
+  { name: "Pilot - Houston (Katy)", corridor: "I-10", lat: 29.78, x: 490, y: 335, type: "megacharger", status: "planned" },
+];
+
+let selectedTruckType = 'none';
+
+function parseDistance(distStr) {
+  const match = distStr.match(/([\d,]+)/);
+  if (!match) return 0;
+  return parseInt(match[1].replace(',', ''));
+}
+
+function calcStops(distance, range) {
+  if (distance <= 0 || range <= 0) return { stops: 0, viable: true };
+  if (distance <= range) return { stops: 0, viable: true };
+  // With charging to 60%, effective per-stop range is ~range*0.6
+  const effectiveRange = range * 0.85; // assume start near full, top up to ~85% usable
+  const stops = Math.ceil(distance / effectiveRange) - 1;
+  return { stops, viable: true };
+}
+
+function getStopAnalysis(route) {
+  if (selectedTruckType === 'none') return '';
+  const truck = truckTypes[selectedTruckType];
+  const dist = parseDistance(route.distance);
+  if (dist <= 0) return '<div style="color:var(--text-dim);font-size:11px;margin-top:8px;">Distance varies — stop count depends on specific route</div>';
+  
+  const { stops } = calcStops(dist, truck.range);
+  const canDirect = dist <= truck.range;
+  
+  let html = `<div class="terminal-section">
+    <h4 style="color:${truck.color};">EV Feasibility: ${truck.name}</h4>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+      <div class="detail-item">
+        <div class="d-label">Range</div>
+        <div class="d-value" style="font-size:13px;">${truck.range} mi</div>
+      </div>
+      <div class="detail-item">
+        <div class="d-label">Route Dist</div>
+        <div class="d-value" style="font-size:13px;">${dist} mi</div>
+      </div>
+      <div class="detail-item">
+        <div class="d-label">Stops Needed</div>
+        <div class="d-value" style="font-size:13px;color:${canDirect ? 'var(--accent-aurora)' : truck.color};">${canDirect ? '0 (Direct)' : stops}</div>
+      </div>
+      <div class="detail-item">
+        <div class="d-label">Charge Time/Stop</div>
+        <div class="d-value" style="font-size:11px;">${truck.chargeTime}</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--text-secondary);margin-top:8px;line-height:1.5;">
+      ${canDirect 
+        ? '✅ This route can be completed on a single charge. No mid-route charging stop required.'
+        : `⚡ ${stops} charging stop${stops > 1 ? 's' : ''} required at Pilot Megacharger locations along the corridor. Adds ~${stops * 30}–${stops * 45} min to total trip time. Texas has 19 planned Megacharger sites (most in the US) along I-10, I-20, I-35, I-45.`}
+    </div>
+  </div>`;
+  return html;
+}
+
+function renderChargingStops(svg) {
+  if (selectedTruckType === 'none') return svg;
+  const truck = truckTypes[selectedTruckType];
+  
+  chargingStops.forEach(stop => {
+    const isActive = stop.status === 'active';
+    const r = isActive ? 4 : 3;
+    const fill = isActive ? truck.color : 'transparent';
+    const stroke = truck.color;
+    const opacity = isActive ? 0.9 : 0.5;
+    
+    svg += `<rect x="${stop.x - 4}" y="${stop.y - 4}" width="8" height="8" rx="2" 
+      fill="${fill}" stroke="${stroke}" stroke-width="1.5" opacity="${opacity}"
+      stroke-dasharray="${isActive ? 'none' : '2 1'}"/>`;
+    
+    // Small lightning bolt icon
+    svg += `<text x="${stop.x}" y="${stop.y + 3}" text-anchor="middle" 
+      style="font-size:6px;fill:${truck.color};opacity:${opacity};">⚡</text>`;
+  });
+  
+  return svg;
+}
+
+function updateStopSummary() {
+  const el = document.getElementById('stopSummary');
+  if (selectedTruckType === 'none') {
+    el.style.display = 'none';
+    return;
+  }
+  const truck = truckTypes[selectedTruckType];
+  const filtered = filterRoutes();
+  let directCount = 0;
+  let stopCount = 0;
+  filtered.forEach(r => {
+    const dist = parseDistance(r.distance);
+    if (dist > 0 && dist <= truck.range) directCount++;
+    else if (dist > truck.range) stopCount++;
+  });
+  
+  el.style.display = 'block';
+  el.innerHTML = `<span style="color:${truck.color};font-weight:600;">${truck.name}</span> (${truck.range} mi range)<br>
+    <span style="color:var(--accent-aurora);">${directCount}</span> routes direct · 
+    <span style="color:${truck.color};">${stopCount}</span> need charging stops<br>
+    <span style="color:var(--text-dim);">⚡ squares = planned Megacharger sites</span>`;
+}
+
+document.getElementById('truckTypeFilter').addEventListener('click', e => {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+  const val = chip.dataset.truck;
+  selectedTruckType = val;
+  document.querySelectorAll('#truckTypeFilter .chip').forEach(c => c.classList.remove('active'));
+  if (val !== 'none') chip.classList.add('active');
+  else document.querySelector('#truckTypeFilter .chip[data-truck="none"]').classList.add('active');
+  updateStopSummary();
+  renderRouteList();
+  renderMap();
+  if (selectedRoute) showDetail(selectedRoute);
+});
+
+// ==================== INIT ====================
+renderRouteList();
+renderMap();
+</script>
+</body>
+</html>
