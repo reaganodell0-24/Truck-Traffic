@@ -1,7 +1,7 @@
 [
   {
     "id": "aur-dh",
-    "name": "Dallas → Houston",
+    "name": "Dallas -> Houston",
     "company": "aurora",
     "status": "active",
     "corridor": "I-45",
@@ -31,7 +31,7 @@
   },
   {
     "id": "aur-fwe",
-    "name": "Fort Worth → El Paso",
+    "name": "Fort Worth -> El Paso",
     "company": "aurora",
     "status": "active",
     "corridor": "I-20 / I-10",
@@ -61,7 +61,7 @@
   },
   {
     "id": "aur-fwp",
-    "name": "Fort Worth → Phoenix",
+    "name": "Fort Worth -> Phoenix",
     "company": "aurora",
     "status": "active",
     "corridor": "I-20 / I-10",
@@ -91,7 +91,7 @@
   },
   {
     "id": "aur-dl",
-    "name": "Dallas → Laredo",
+    "name": "Dallas -> Laredo",
     "company": "aurora",
     "status": "active",
     "corridor": "I-35",
@@ -121,7 +121,7 @@
   },
   {
     "id": "aur-dsa",
-    "name": "Dallas → San Antonio",
+    "name": "Dallas -> San Antonio",
     "company": "aurora",
     "status": "active",
     "corridor": "I-35",
@@ -151,7 +151,7 @@
   },
   {
     "id": "kod-permian-dune",
-    "name": "Dune Express → Well Sites",
+    "name": "Dune Express -> Well Sites",
     "company": "kodiak",
     "status": "active",
     "corridor": "Private lease roads",
@@ -181,7 +181,7 @@
   },
   {
     "id": "aur-permian-detmar",
-    "name": "Midland → Monahans (Frac Sand)",
+    "name": "Midland -> Monahans (Frac Sand)",
     "company": "aurora",
     "status": "active",
     "corridor": "I-20 + local/private",
@@ -189,7 +189,7 @@
     "origin": "midland",
     "destination": "monahans",
     "waypoints": [],
-    "launched": "Q1 2026 supervised → Q2 2026 driverless",
+    "launched": "Q1 2026 supervised -> Q2 2026 driverless",
     "truck_count": "30 committed",
     "customers": ["Detmar Logistics"],
     "power_type": "Diesel (autonomous)",
@@ -240,7 +240,7 @@
   },
   {
     "id": "waabi-dh",
-    "name": "Dallas → Houston (Waabi)",
+    "name": "Dallas -> Houston (Waabi)",
     "company": "waabi",
     "status": "planned",
     "corridor": "I-45",
@@ -270,7 +270,7 @@
   },
   {
     "id": "bot-hsa",
-    "name": "Houston → San Antonio",
+    "name": "Houston -> San Antonio",
     "company": "bot-auto",
     "status": "pilot",
     "corridor": "I-10",
@@ -296,11 +296,11 @@
       "source": "TxDOT / FHWA",
       "year": 2024
     },
-    "notes": "I-10 corridor. Houston petrochem → SA distribution."
+    "notes": "I-10 corridor. Houston petrochem -> SA distribution."
   },
   {
     "id": "bot-hd",
-    "name": "Houston → Dallas (Overnight)",
+    "name": "Houston -> Dallas (Overnight)",
     "company": "bot-auto",
     "status": "planned",
     "corridor": "I-45",

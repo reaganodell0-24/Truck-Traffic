@@ -1,0 +1,123 @@
+[
+  {
+    "id": "palmer-tx",
+    "name": "Aurora Palmer Terminal",
+    "city": "Palmer, TX",
+    "lat": 32.43,
+    "lng": -96.67,
+    "operators": ["aurora"],
+    "type": "av_terminal",
+    "size_sqft": null,
+    "capabilities": ["fueling", "maintenance", "inspection", "calibration"]
+  },
+  {
+    "id": "houston-tx",
+    "name": "Aurora Houston Terminal",
+    "city": "Houston, TX",
+    "lat": 29.95,
+    "lng": -95.69,
+    "operators": ["aurora"],
+    "type": "av_terminal",
+    "size_sqft": null,
+    "capabilities": ["fueling", "maintenance", "inspection", "calibration"]
+  },
+  {
+    "id": "fortworth-tx",
+    "name": "Aurora Fort Worth Terminal",
+    "city": "Fort Worth, TX",
+    "lat": 32.75,
+    "lng": -97.33,
+    "operators": ["aurora"],
+    "type": "av_terminal",
+    "size_sqft": null,
+    "capabilities": ["fueling", "maintenance", "inspection"]
+  },
+  {
+    "id": "elpaso-tx",
+    "name": "Aurora El Paso Terminal",
+    "city": "El Paso, TX",
+    "lat": 31.76,
+    "lng": -106.44,
+    "operators": ["aurora"],
+    "type": "av_terminal",
+    "size_sqft": null,
+    "capabilities": ["fueling", "maintenance", "inspection"]
+  },
+  {
+    "id": "lancaster-tx",
+    "name": "Waabi Lancaster Terminal",
+    "city": "Lancaster, TX",
+    "lat": 32.59,
+    "lng": -96.76,
+    "operators": ["waabi"],
+    "type": "av_terminal",
+    "size_sqft": 348480,
+    "capabilities": ["fueling", "maintenance", "inspection", "calibration"]
+  },
+  {
+    "id": "odessa-tx",
+    "name": "Kodiak Odessa Office & Depot",
+    "city": "Odessa, TX",
+    "lat": 31.84,
+    "lng": -102.35,
+    "operators": ["kodiak"],
+    "type": "depot",
+    "size_sqft": 18000,
+    "capabilities": ["maintenance", "inspection", "calibration"]
+  },
+  {
+    "id": "duneexpress-tx",
+    "name": "Atlas Dune Express Terminal",
+    "city": "Kermit, TX",
+    "lat": 31.85,
+    "lng": -103.10,
+    "operators": ["kodiak"],
+    "type": "av_terminal",
+    "size_sqft": null,
+    "capabilities": ["fueling", "maintenance"]
+  },
+  {
+    "id": "kodiak-truckport-ga",
+    "name": "Kodiak Truckport (Pilot Travel Center)",
+    "city": "Georgia",
+    "lat": 33.75,
+    "lng": -84.39,
+    "operators": ["kodiak"],
+    "type": "truckport",
+    "size_sqft": null,
+    "capabilities": ["fueling", "maintenance", "inspection"]
+  },
+  {
+    "id": "midland-tx",
+    "name": "Midland Hub",
+    "city": "Midland, TX",
+    "lat": 31.99,
+    "lng": -102.08,
+    "operators": ["aurora"],
+    "type": "av_terminal",
+    "size_sqft": null,
+    "capabilities": ["fueling", "maintenance"]
+  },
+  {
+    "id": "laredo-tx",
+    "name": "Laredo Border Freight Hub",
+    "city": "Laredo, TX",
+    "lat": 27.51,
+    "lng": -99.51,
+    "operators": [],
+    "type": "depot",
+    "size_sqft": null,
+    "capabilities": ["fueling", "inspection"]
+  },
+  {
+    "id": "sanantonio-tx",
+    "name": "San Antonio Distribution Hub",
+    "city": "San Antonio, TX",
+    "lat": 29.42,
+    "lng": -98.49,
+    "operators": ["aurora", "bot-auto"],
+    "type": "depot",
+    "size_sqft": null,
+    "capabilities": ["fueling", "maintenance"]
+  }
+]

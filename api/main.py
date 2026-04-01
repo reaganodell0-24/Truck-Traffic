@@ -1,18 +1,27 @@
 """TX Autonomous Trucking Route Database — FastAPI Backend"""
 
 from fastapi import FastAPI, Query
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import json
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 from .faf5_client import FAF5Client
 from .transborder_client import TransBorderClient
+
+
+class SafeJSONResponse(JSONResponse):
+    """JSON response that uses ensure_ascii=True to avoid encoding issues on Windows."""
+    def render(self, content: Any) -> bytes:
+        return json.dumps(content, ensure_ascii=True).encode("utf-8")
+
 
 app = FastAPI(
     title="TX AV Route Database",
     description="Autonomous trucking routes, freight volumes, and EV charging stops for Texas corridors",
     version="0.1.0",
+    default_response_class=SafeJSONResponse,
 )
 
 app.add_middleware(
@@ -29,7 +38,7 @@ transborder = TransBorderClient()
 
 
 def load_json(filename: str) -> list:
-    with open(DATA_DIR / filename) as f:
+    with open(DATA_DIR / filename, encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -58,6 +67,68 @@ def get_route(route_id: str):
     if not route:
         return {"error": "Route not found"}
     return route
+
+
+# ── Terminals ─────────────────────────────────────────────────────
+
+@app.get("/api/terminals")
+def get_terminals(
+    operator: Optional[str] = None,
+    type: Optional[str] = None,
+):
+    """All terminal/hub locations, optionally filtered by operator or type."""
+    terminals = load_json("terminals.json")
+    if operator:
+        terminals = [t for t in terminals if operator in t["operators"]]
+    if type:
+        terminals = [t for t in terminals if t["type"] == type]
+    return terminals
+
+
+@app.get("/api/terminals/{terminal_id}")
+def get_terminal(terminal_id: str):
+    terminals = load_json("terminals.json")
+    terminal = next((t for t in terminals if t["id"] == terminal_id), None)
+    if not terminal:
+        return {"error": "Terminal not found"}
+    return terminal
+
+
+# ── Charging Stops ────────────────────────────────────────────────
+
+@app.get("/api/charging-stops")
+def get_charging_stops(
+    corridor: Optional[str] = None,
+    status: Optional[str] = None,
+    type: Optional[str] = None,
+):
+    """Megacharger + EV charging locations, optionally filtered."""
+    stops = load_json("charging_stops.json")
+    if corridor:
+        stops = [s for s in stops if corridor.lower() in s["corridor"].lower()]
+    if status:
+        stops = [s for s in stops if s["status"] == status]
+    if type:
+        stops = [s for s in stops if s["type"] == type]
+    return stops
+
+
+# ── Route Volume ──────────────────────────────────────────────────
+
+@app.get("/api/routes/{route_id}/volume")
+def get_route_volume(route_id: str):
+    """Corridor volume data for a specific route."""
+    routes = load_json("routes.json")
+    route = next((r for r in routes if r["id"] == route_id), None)
+    if not route:
+        return {"error": "Route not found"}
+    return {
+        "route_id": route["id"],
+        "route_name": route["name"],
+        "corridor": route["corridor"],
+        "distance_miles": route.get("distance_miles"),
+        "volume": route.get("volume", {}),
+    }
 
 
 # ── FAF5 Freight Flows ─────────────────────────────────────────────
@@ -112,6 +183,23 @@ def get_transborder_commodity(
 ):
     """Top commodities at a border crossing by value."""
     return transborder.top_commodities_by_port(port=port, year=year)
+
+
+@app.get("/api/transborder/crossings")
+def get_transborder_crossings(
+    port: str = Query("Laredo", description="Border port name"),
+    year: Optional[int] = Query(2025),
+):
+    """Monthly truck crossing counts at a border port."""
+    return transborder.truck_crossings_by_port(port=port, year=year)
+
+
+@app.get("/api/transborder/summary")
+def get_transborder_summary(
+    year: int = Query(2024),
+):
+    """Annual freight summary across all TX border ports."""
+    return transborder.annual_summary(year=year)
 
 
 # ── Analytics ──────────────────────────────────────────────────────

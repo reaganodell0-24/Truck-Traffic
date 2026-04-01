@@ -65,6 +65,11 @@ class TransBorderClient:
         except httpx.HTTPError as e:
             return [{"error": str(e), "hint": "Check dataset ID and query syntax"}]
 
+    @staticmethod
+    def _sanitize(value: str) -> str:
+        """Escape single quotes for SoQL string literals."""
+        return value.replace("'", "''")
+
     def monthly_by_port(
         self,
         port: str = "Laredo",
@@ -76,11 +81,11 @@ class TransBorderClient:
         Monthly freight value at a border port by mode.
         Returns monthly totals useful for trend analysis.
         """
-        where_clauses = [f"port LIKE '%{port}%'"]
+        where_clauses = [f"port LIKE '%{self._sanitize(port)}%'"]
         if year:
-            where_clauses.append(f"year = '{year}'")
+            where_clauses.append(f"year = '{int(year)}'")
         if mode:
-            where_clauses.append(f"measure LIKE '%{mode}%'")
+            where_clauses.append(f"measure LIKE '%{self._sanitize(mode)}%'")
 
         params = {
             "$where": " AND ".join(where_clauses),
@@ -96,9 +101,9 @@ class TransBorderClient:
         limit: int = 20,
     ) -> list[dict]:
         """Top commodities by value at a border crossing."""
-        where_clauses = [f"port LIKE '%{port}%'"]
+        where_clauses = [f"port LIKE '%{self._sanitize(port)}%'"]
         if year:
-            where_clauses.append(f"year = '{year}'")
+            where_clauses.append(f"year = '{int(year)}'")
 
         params = {
             "$select": "commodity, commodity2, SUM(value) as total_value",
@@ -116,12 +121,13 @@ class TransBorderClient:
     ) -> list[dict]:
         """Monthly truck crossing counts at a border port."""
         where_clauses = [
-            f"port_name LIKE '%{port}%'",
+            f"port_name LIKE '%{self._sanitize(port)}%'",
             "measure = 'Trucks'",
         ]
         if year:
-            where_clauses.append(f"date >= '{year}-01-01'")
-            where_clauses.append(f"date < '{year + 1}-01-01'")
+            yr = int(year)
+            where_clauses.append(f"date >= '{yr}-01-01'")
+            where_clauses.append(f"date < '{yr + 1}-01-01'")
 
         params = {
             "$where": " AND ".join(where_clauses),
@@ -137,7 +143,7 @@ class TransBorderClient:
         """
         params = {
             "$select": "port, measure, SUM(value) as total_value",
-            "$where": f"year = '{year}' AND state = 'Texas'",
+            "$where": f"year = '{int(year)}' AND state = 'Texas'",
             "$group": "port, measure",
             "$order": "total_value DESC",
             "$limit": 200,
