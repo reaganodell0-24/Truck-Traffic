@@ -42,6 +42,18 @@ def load_json(filename: str) -> list:
         return json.load(f)
 
 
+# ── Data Status ───────────────────────────────────────────────────
+
+@app.get("/api/data-status")
+def get_data_status():
+    """Serve the latest data sweeper status."""
+    status_file = DATA_DIR / "sweeper_status.json"
+    if status_file.exists():
+        with open(status_file, encoding="utf-8") as f:
+            return json.load(f)
+    return {"error": "No sweeper status found. Run: python scripts/data_sweeper.py"}
+
+
 # ── Routes ──────────────────────────────────────────────────────────
 
 @app.get("/api/routes")
@@ -141,7 +153,10 @@ def get_faf5_flows(
     year: Optional[int] = Query(2024),
 ):
     """Query FAF5 freight flows between two zones filtered by mode and year."""
-    return faf5.query_flows(origin=origin, dest=dest, mode=mode, year=year)
+    try:
+        return faf5.query_flows(origin=origin, dest=dest, mode=mode, year=year)
+    except Exception:
+        return [{"error": "FAF5 database not available. Run: python scripts/setup_faf5.py"}]
 
 
 @app.get("/api/faf5/commodities")
@@ -151,7 +166,10 @@ def get_faf5_commodities(
     year: Optional[int] = Query(2024),
 ):
     """Top commodities by tonnage between two zones (truck mode only)."""
-    return faf5.top_commodities(origin=origin, dest=dest, year=year)
+    try:
+        return faf5.top_commodities(origin=origin, dest=dest, year=year)
+    except Exception:
+        return [{"error": "FAF5 database not available. Run: python scripts/setup_faf5.py"}]
 
 
 @app.get("/api/faf5/forecast")
@@ -161,7 +179,10 @@ def get_faf5_forecast(
     mode: Optional[str] = Query("Truck"),
 ):
     """Tonnage forecast 2024-2050 for a corridor."""
-    return faf5.tonnage_forecast(origin=origin, dest=dest, mode=mode)
+    try:
+        return faf5.tonnage_forecast(origin=origin, dest=dest, mode=mode)
+    except Exception:
+        return [{"error": "FAF5 database not available. Run: python scripts/setup_faf5.py"}]
 
 
 # ── BTS TransBorder Freight ────────────────────────────────────────

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { cn } from "@/lib/utils";
 
 interface PanelShellProps {
   open: boolean;
@@ -13,7 +12,6 @@ interface PanelShellProps {
 }
 
 export function PanelShell({ open, onClose, title, wide = false, children, actions }: PanelShellProps) {
-  // Close on Escape key
   useEffect(() => {
     if (!open) return;
     const handleKey = (e: KeyboardEvent) => {
@@ -23,37 +21,68 @@ export function PanelShell({ open, onClose, title, wide = false, children, actio
     return () => document.removeEventListener("keydown", handleKey);
   }, [open, onClose]);
 
+  if (!open) return null;
+
   return (
     <>
       {/* Backdrop */}
       <div
-        className={cn(
-          "fixed inset-0 z-40 bg-black/40 backdrop-blur-xs transition-opacity duration-200",
-          open ? "opacity-100" : "opacity-0 pointer-events-none"
-        )}
         onClick={onClose}
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 9998,
+          backgroundColor: "rgba(0,0,0,0.5)",
+        }}
       />
 
       {/* Panel */}
       <div
-        className={cn(
-          "fixed top-0 right-0 z-50 h-full bg-card border-l border-border shadow-2xl",
-          "transition-transform duration-300 ease-in-out",
-          "flex flex-col",
-          wide ? "w-[900px]" : "w-[400px]",
-          open ? "translate-x-0" : "translate-x-full"
-        )}
+        style={{
+          position: "fixed",
+          top: 0,
+          right: 0,
+          zIndex: 9999,
+          width: wide ? 900 : 400,
+          height: "100vh",
+          backgroundColor: "var(--card, #1a2234)",
+          borderLeft: "1px solid var(--border, #1e293b)",
+          boxShadow: "-4px 0 24px rgba(0,0,0,0.3)",
+          display: "flex",
+          flexDirection: "column",
+          color: "var(--foreground, #f1f5f9)",
+        }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border flex-shrink-0">
-          <h2 className="font-mono text-sm uppercase tracking-wider text-foreground">
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "12px 16px",
+            borderBottom: "1px solid var(--border, #1e293b)",
+            flexShrink: 0,
+          }}
+        >
+          <h2 style={{ fontFamily: "var(--font-mono, monospace)", fontSize: 13, textTransform: "uppercase", letterSpacing: "0.05em", margin: 0 }}>
             {title}
           </h2>
-          <div className="flex items-center gap-2">
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             {actions}
             <button
               onClick={onClose}
-              className="h-7 w-7 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors cursor-pointer"
+              style={{
+                width: 28,
+                height: 28,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: 6,
+                border: "none",
+                background: "transparent",
+                color: "var(--muted-foreground, #94a3b8)",
+                cursor: "pointer",
+              }}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M18 6L6 18M6 6l12 12" />
@@ -62,9 +91,15 @@ export function PanelShell({ open, onClose, title, wide = false, children, actio
           </div>
         </div>
 
-        {/* Scrollable content */}
-        <div className="overflow-y-auto p-4" style={{ height: "calc(100vh - 52px)" }}>
-          <div className="space-y-4 pb-8">
+        {/* Content */}
+        <div
+          style={{
+            flex: 1,
+            overflowY: "auto",
+            padding: 16,
+          }}
+        >
+          <div style={{ display: "flex", flexDirection: "column", gap: 16, paddingBottom: 32 }}>
             {children}
           </div>
         </div>
